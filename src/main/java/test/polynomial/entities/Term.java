@@ -10,6 +10,14 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "terms")
 public class Term {
+    public Term(int coefficient, int exponent) {
+        this.coefficient = coefficient;
+        this.exponent = exponent;
+    }
+
+    public Term() {
+    }
+
     /**
      * ID
      */
