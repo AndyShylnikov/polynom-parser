@@ -58,6 +58,9 @@ public class StringHelper {
                 returnValue.append(" + "); //if coefficient is greater than 0, we add ` + `, otherwise we will use ` - ` from term representation
             returnValue.append(termToString(term));
         }
+        if (returnValue.substring(0, 3).equals(" - ")) {
+            returnValue = returnValue.deleteCharAt(0).deleteCharAt(1);
+        }
         return returnValue.toString();
     }
 }
