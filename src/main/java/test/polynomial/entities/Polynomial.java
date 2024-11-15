@@ -3,6 +3,7 @@ package test.polynomial.entities;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 /**
  * Polynomial class represents wrapper on list of terms
@@ -24,9 +25,14 @@ public class Polynomial {
     /**
      * terms list
      */
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "polynomial_id")
-    private List<Term> terms;
+    @OneToMany(mappedBy = "polynomial", cascade = CascadeType.ALL)
+    private List<Term> terms = new ArrayList<>();
+
+    /**
+     * Reference to expressions table
+     */
+    @OneToMany(mappedBy = "polynomial", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Expression> expressions;
 
     public int getId() {
         return id;
@@ -50,5 +56,13 @@ public class Polynomial {
 
     public void setTerms(List<Term> terms) {
         this.terms = terms;
+    }
+
+    public List<Expression> getExpressions() {
+        return expressions;
+    }
+
+    public void setExpressions(List<Expression> expressions) {
+        this.expressions = expressions;
     }
 }

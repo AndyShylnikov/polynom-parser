@@ -34,6 +34,12 @@ public class Term {
      * In a*x^b term exponent is responsibe for b
      */
     private int exponent;
+    /**
+     * Reference to polynomials table
+     */
+    @ManyToOne
+    @JoinColumn(name = "polymonial_id", nullable = true)
+    private Polynomial polynomial;
 
     public int getId() {
         return id;
@@ -57,5 +63,13 @@ public class Term {
 
     public void setExponent(int exponent) {
         this.exponent = exponent;
+    }
+
+    public Polynomial getPolynomial() {
+        return polynomial;
+    }
+
+    public void setPolynomial(Polynomial polynomial) {
+        this.polynomial = polynomial;
     }
 }
