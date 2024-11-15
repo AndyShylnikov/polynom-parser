@@ -6,6 +6,7 @@ import test.polynomial.entities.Expression;
 import test.polynomial.entities.Polynomial;
 import test.polynomial.entities.Term;
 import test.polynomial.helpers.ParseHelper;
+import test.polynomial.helpers.PolynomialHelper;
 import test.polynomial.interfaces.IPolynomialService;
 import test.polynomial.pojo.ExpressionWrapper;
 import test.polynomial.repositories.ExpressionRepository;
@@ -34,17 +35,8 @@ public class PolynomialService implements IPolynomialService {
      */
     @Override
     public String parse(String expression) {
-
-        Expression expressionInstance = fetchExpression(expression);
-        if (expressionInstance == null) { // no expression found, need to parse
-            expressionInstance = new Expression();
-            expressionInstance.setOriginalExpression(expression);
-            Polynomial polynomial = parseToPolynomial(expressionInstance);
-
-            return polynomial.getSimplified();
-        } else { // return found
-            return expressionInstance.getPolynomial().getSimplified();
-        }
+        Polynomial polynomial = parseToPolynomial(expression);
+        return polynomial.getSimplified();
     }
 
     /**
@@ -57,15 +49,8 @@ public class PolynomialService implements IPolynomialService {
     @Override
     public int solve(String expression, String argumentValue) {
         int argument = Integer.parseInt(argumentValue);
-        Expression expressionInstance = fetchExpression(expression);
-        if (expressionInstance == null) { // no expression found, need to parse and calculate
-            expressionInstance = new Expression();
-            expressionInstance.setOriginalExpression(expression);
-            Polynomial polynomial = parseToPolynomial(expressionInstance);
-            return solveFunction(polynomial, argument);
-        } else { // calculate result
-            return solveFunction(expressionInstance.getPolynomial(), argument);
-        }
+        Polynomial polynomial = parseToPolynomial(expression);
+        return PolynomialHelper.solve(polynomial,argument);
     }
 
     /**
@@ -75,7 +60,7 @@ public class PolynomialService implements IPolynomialService {
      * @return result of fixing
      */
     private String fixExpression(String originalExpression) {
-        String result = originalExpression.replaceAll("\\s+", "").replaceAll("-","−" ); // Remove all whitespace
+        String result = originalExpression.replaceAll("\\s+", "").replaceAll("-", "−"); // Remove all whitespace
         return result;
     }
 
@@ -91,20 +76,6 @@ public class PolynomialService implements IPolynomialService {
         return foundExpression.orElse(null);
     }
 
-    /**
-     * Solves function using terms from polymonial and argument
-     *
-     * @param polynomial
-     * @param argument
-     * @return result of solving
-     */
-    private int solveFunction(Polynomial polynomial, int argument) {
-        int result = 0;
-        for (Term term : polynomial.getTerms()) {
-            result += term.getCoefficient() * (Math.pow(argument, term.getExponent()));
-        }
-        return result;
-    }
 
     /**
      * Parses given expression
@@ -112,14 +83,20 @@ public class PolynomialService implements IPolynomialService {
      * @param expression - string expression to parse
      * @return parsed result
      */
-    private Polynomial parseToPolynomial(Expression expression) {
-        ExpressionWrapper wrapper = new ExpressionWrapper(expression);
-
-        Polynomial polynomial = ParseHelper.parseExpression(wrapper);
-
-        expression.setPolynomial(polynomial);
-        polynomialRepository.save(polynomial);
-        Expression saved = expressionRepository.save(expression);
+    private Polynomial parseToPolynomial(String expression) {
+        Polynomial polynomial;
+        Expression expressionInstance = fetchExpression(expression);
+        if (expressionInstance == null) { // no expression found, need to parse
+            expressionInstance = new Expression();
+            expressionInstance.setOriginalExpression(expression);
+            ExpressionWrapper wrapper = new ExpressionWrapper(expressionInstance);
+            polynomial = ParseHelper.parseExpression(wrapper);
+            expressionInstance.setPolynomial(polynomial);
+            polynomialRepository.save(polynomial);
+            Expression saved = expressionRepository.save(expressionInstance);
+        } else { // return found
+            polynomial = expressionInstance.getPolynomial();
+        }
         return polynomial;
 
     }
