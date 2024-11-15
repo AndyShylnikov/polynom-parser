@@ -61,8 +61,8 @@ public class PolynomialService implements IPolynomialService {
         if (expressionInstance == null) { // no expression found, need to parse and calculate
             expressionInstance = new Expression();
             expressionInstance.setOriginalExpression(expression);
-
-            return 0;
+            Polynomial polynomial = parseToPolynomial(expressionInstance);
+            return solveFunction(polynomial, argument);
         } else { // calculate result
             return solveFunction(expressionInstance.getPolynomial(), argument);
         }
