@@ -90,6 +90,9 @@ public class PolynomialHelper {
                 addTerm(simplified, new Term(entry.getValue(), entry.getKey()));
             }
         }
+        simplified.getTerms().sort((t1,t2)->{
+            return t2.getExponent() - t1.getExponent();
+        });
         return simplified;
     }
 
