@@ -34,6 +34,9 @@ public class ParseHelper {
         }
         result = PolynomialHelper.simplify(result);
         result.setSimplified(StringHelper.polymonialToString(result));
+        for (Term term : result.getTerms()) {
+            term.setPolynomial(result);
+        }
         return result;
     }
 

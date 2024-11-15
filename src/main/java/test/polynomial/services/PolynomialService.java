@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import test.polynomial.entities.Expression;
 import test.polynomial.entities.Polynomial;
 import test.polynomial.entities.Term;
+import test.polynomial.helpers.ParseHelper;
 import test.polynomial.interfaces.IPolynomialService;
+import test.polynomial.pojo.ExpressionWrapper;
 import test.polynomial.repositories.ExpressionRepository;
 import test.polynomial.repositories.PolynomialRepository;
 import test.polynomial.repositories.TermRepository;
@@ -35,7 +37,11 @@ public class PolynomialService implements IPolynomialService {
 
         Expression expressionInstance = fetchExpression(expression);
         if (expressionInstance == null) { // no expression found, need to parse
-            return "";
+            expressionInstance = new Expression();
+            expressionInstance.setOriginalExpression(expression);
+            Polynomial polynomial = parseToPolynomial(expressionInstance);
+
+            return polynomial.getSimplified();
         } else { // return found
             return expressionInstance.getPolynomial().getSimplified();
         }
@@ -53,6 +59,9 @@ public class PolynomialService implements IPolynomialService {
         int argument = Integer.parseInt(argumentValue);
         Expression expressionInstance = fetchExpression(expression);
         if (expressionInstance == null) { // no expression found, need to parse and calculate
+            expressionInstance = new Expression();
+            expressionInstance.setOriginalExpression(expression);
+
             return 0;
         } else { // calculate result
             return solveFunction(expressionInstance.getPolynomial(), argument);
@@ -61,16 +70,18 @@ public class PolynomialService implements IPolynomialService {
 
     /**
      * Removes spaces and replaces hyphens with minus(they look similar)
+     *
      * @param originalExpression - expression to fix
      * @return result of fixing
      */
     private String fixExpression(String originalExpression) {
-        String result = originalExpression.replaceAll("\\s+", "").replaceAll("−", "-"); // Remove all whitespace
+        String result = originalExpression.replaceAll("\\s+", "").replaceAll("-","−" ); // Remove all whitespace
         return result;
     }
 
     /**
      * Fetches expression instance from DB
+     *
      * @param expression - original expression
      * @return found expression or null
      */
@@ -82,15 +93,34 @@ public class PolynomialService implements IPolynomialService {
 
     /**
      * Solves function using terms from polymonial and argument
+     *
      * @param polynomial
      * @param argument
      * @return result of solving
      */
-    private int solveFunction(Polynomial polynomial, int argument){
+    private int solveFunction(Polynomial polynomial, int argument) {
         int result = 0;
         for (Term term : polynomial.getTerms()) {
             result += term.getCoefficient() * (Math.pow(argument, term.getExponent()));
         }
         return result;
+    }
+
+    /**
+     * Parses given expression
+     *
+     * @param expression - string expression to parse
+     * @return parsed result
+     */
+    private Polynomial parseToPolynomial(Expression expression) {
+        ExpressionWrapper wrapper = new ExpressionWrapper(expression);
+
+        Polynomial polynomial = ParseHelper.parseExpression(wrapper);
+
+        expression.setPolynomial(polynomial);
+        polynomialRepository.save(polynomial);
+        Expression saved = expressionRepository.save(expression);
+        return polynomial;
+
     }
 }
