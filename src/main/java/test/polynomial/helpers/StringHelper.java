@@ -30,6 +30,9 @@ public class StringHelper {
     public static String termToString(Term term) {
         StringBuilder returnValue = new StringBuilder();
         int coefficient = term.getCoefficient();
+        if (coefficient == 0){
+            return "0";
+        }
         if (coefficient < 0) {
             returnValue.append(" - "); // add minus symbol
         }
@@ -58,7 +61,7 @@ public class StringHelper {
                 returnValue.append(" + "); //if coefficient is greater than 0, we add ` + `, otherwise we will use ` - ` from term representation
             returnValue.append(termToString(term));
         }
-        if (returnValue.substring(0, 3).equals(" - ")) {
+        if (returnValue.length() > 3 && returnValue.substring(0, 3).equals(" - ")) {
             returnValue = returnValue.deleteCharAt(0).deleteCharAt(1);
         }
         return returnValue.toString();
