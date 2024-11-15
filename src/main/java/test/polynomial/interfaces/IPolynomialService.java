@@ -1,5 +1,7 @@
 package test.polynomial.interfaces;
 
+import test.polynomial.exceptions.ParsingException;
+
 /**
  * Interface used by {@link test.polynomial.controllers.PolynomialController}
  */
@@ -9,7 +11,7 @@ public interface IPolynomialService {
      * @param expression - string expression to parse
      * @return parsed result
      */
-    public String parse(String expression);
+    public String parse(String expression) throws ParsingException;
 
     /**
      * Parses given expression and solve it as function
@@ -17,5 +19,5 @@ public interface IPolynomialService {
      * @param argumentValue - given argument
      * @return result of function
      */
-    public int solve(String expression, String argumentValue);
+    public int solve(String expression, String argumentValue) throws ParsingException;
 }

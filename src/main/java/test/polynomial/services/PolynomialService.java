@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import test.polynomial.entities.Expression;
 import test.polynomial.entities.Polynomial;
-import test.polynomial.entities.Term;
+import test.polynomial.exceptions.ParsingException;
 import test.polynomial.helpers.ParseHelper;
 import test.polynomial.helpers.PolynomialHelper;
 import test.polynomial.interfaces.IPolynomialService;
@@ -34,7 +34,7 @@ public class PolynomialService implements IPolynomialService {
      * @return parsed result
      */
     @Override
-    public String parse(String expression) {
+    public String parse(String expression) throws ParsingException {
         Polynomial polynomial = parseToPolynomial(expression);
         return polynomial.getSimplified();
     }
@@ -47,7 +47,7 @@ public class PolynomialService implements IPolynomialService {
      * @return result of function
      */
     @Override
-    public int solve(String expression, String argumentValue) {
+    public int solve(String expression, String argumentValue) throws ParsingException {
         int argument = Integer.parseInt(argumentValue);
         Polynomial polynomial = parseToPolynomial(expression);
         return PolynomialHelper.solve(polynomial,argument);
@@ -82,7 +82,7 @@ public class PolynomialService implements IPolynomialService {
      * @param expression - string expression to parse
      * @return parsed result
      */
-    private Polynomial parseToPolynomial(String expression) {
+    private Polynomial parseToPolynomial(String expression) throws ParsingException {
         expression = fixExpression(expression);
         Polynomial polynomial;
         Expression expressionInstance = fetchExpression(expression);

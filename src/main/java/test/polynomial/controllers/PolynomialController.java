@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import test.polynomial.api.PolynomialRequest;
 import test.polynomial.api.PolynomialResponse;
+import test.polynomial.exceptions.ParsingException;
 import test.polynomial.interfaces.IPolynomialService;
 
 /**
@@ -30,6 +31,9 @@ public class PolynomialController {
             } else {
                 return ResponseEntity.ok().body(response.setResult(service.solve(request.getExpression(), request.getArgument())));
             }
+        }
+        catch (ParsingException e){
+            return ResponseEntity.status(400).body(response.setMessage("Parsing error. " + e.getMessage()));
         }
         catch (IllegalArgumentException | HttpMessageNotReadableException e){
             System.out.println(e.getMessage());

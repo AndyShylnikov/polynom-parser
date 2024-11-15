@@ -1,5 +1,6 @@
 package test.polynomial.helpers;
 
+import test.polynomial.exceptions.ParsingException;
 import test.polynomial.pojo.ExpressionWrapper;
 import test.polynomial.entities.Polynomial;
 import test.polynomial.entities.Term;
@@ -15,7 +16,7 @@ public class ParseHelper {
      * @param wrapper - given wrapper with string expression inside
      * @return parsed and simplified polynomial
      */
-    public static Polynomial parseExpression(ExpressionWrapper wrapper) {
+    public static Polynomial parseExpression(ExpressionWrapper wrapper) throws ParsingException {
         Polynomial result = parseTerm(wrapper);
 
         while (wrapper.getIndex() < getExpressionLength(wrapper)) {
@@ -51,7 +52,7 @@ public class ParseHelper {
      * @param wrapper given with string expression inside
      * @return polynomial
      */
-    public static Polynomial parseTerm(ExpressionWrapper wrapper) {
+    public static Polynomial parseTerm(ExpressionWrapper wrapper) throws ParsingException {
         Polynomial result = parseFactor(wrapper);
 
         while (wrapper.getIndex() < getExpressionLength(wrapper)) {
@@ -73,7 +74,7 @@ public class ParseHelper {
      * @param wrapper given with string expression inside
      * @return polynomial
      */
-    public static Polynomial parseFactor(ExpressionWrapper wrapper) {
+    public static Polynomial parseFactor(ExpressionWrapper wrapper) throws ParsingException {
         char currentChar = getCurrentSymbol(wrapper);
 
         if (currentChar == '(') { // Parse nested expression
@@ -87,7 +88,7 @@ public class ParseHelper {
             return parsePolynomial(wrapper);
         }
 
-        throw new IllegalArgumentException("Unexpected character: " + currentChar);
+        throw new ParsingException("Unexpected character: " + currentChar);
     }
 
     private static int getExpressionLength(ExpressionWrapper wrapper) {
@@ -100,7 +101,7 @@ public class ParseHelper {
      * @param wrapper given with string expression inside
      * @return polynomial
      */
-    public static Polynomial parsePolynomial(ExpressionWrapper wrapper) {
+    public static Polynomial parsePolynomial(ExpressionWrapper wrapper) throws ParsingException {
         int coefficient = 1;
         int exponent = 0;
 
@@ -109,19 +110,33 @@ public class ParseHelper {
             while (wrapper.getIndex() < getExpressionLength(wrapper) && Character.isDigit(getCurrentSymbol(wrapper))) {
                 incrementIndex(wrapper);
             }
-            coefficient = Integer.parseInt(wrapper.getExpression().getOriginalExpression().substring(start, wrapper.getIndex()));
+            String coeffStr = wrapper.getExpression().getOriginalExpression().substring(start, wrapper.getIndex());
+            try {
+                coefficient = Integer.parseInt(coeffStr);
+            }
+            catch (NumberFormatException e){
+                throw new ParsingException("Can't parse coefficient. Check positions between " + start + " and " + wrapper.getIndex() +
+                        " in " + wrapper.getExpression().getOriginalExpression());
+            }
         }
 
         if (wrapper.getIndex() < getExpressionLength(wrapper) && getCurrentSymbol(wrapper) == 'x') {
             exponent = 1;
             incrementIndex(wrapper);
-            if (wrapper.getIndex() < getExpressionLength(wrapper) && getCurrentSymbol(wrapper) == '^') {
+            if (wrapper.getIndex() < getExpressionLength(wrapper) && getCurrentSymbol(wrapper) == '^') { //
                 incrementIndex(wrapper); //Skip '^' symbol
                 int start = wrapper.getIndex();
                 while (wrapper.getIndex() < getExpressionLength(wrapper) && Character.isDigit(getCurrentSymbol(wrapper))) {
                     incrementIndex(wrapper);
                 }
-                exponent = Integer.parseInt(wrapper.getExpression().getOriginalExpression().substring(start, wrapper.getIndex()));
+                try {
+                    exponent = Integer.parseInt(wrapper.getExpression().getOriginalExpression().substring(start, wrapper.getIndex()));
+                }
+                catch (NumberFormatException e){
+                    throw new ParsingException("Can't parse exponent. Check positions between " + start + " and " + wrapper.getIndex() +
+                            " in " + wrapper.getExpression().getOriginalExpression());
+                }
+
             }
         }
 
