@@ -71,7 +71,6 @@ public class PolynomialService implements IPolynomialService {
      * @return found expression or null
      */
     private Expression fetchExpression(String expression) {
-        expression = fixExpression(expression);
         Optional<Expression> foundExpression = expressionRepository.findByOriginalExpression(expression);
         return foundExpression.orElse(null);
     }
@@ -84,6 +83,7 @@ public class PolynomialService implements IPolynomialService {
      * @return parsed result
      */
     private Polynomial parseToPolynomial(String expression) {
+        expression = fixExpression(expression);
         Polynomial polynomial;
         Expression expressionInstance = fetchExpression(expression);
         if (expressionInstance == null) { // no expression found, need to parse
