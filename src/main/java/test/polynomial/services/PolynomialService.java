@@ -48,9 +48,14 @@ public class PolynomialService implements IPolynomialService {
      */
     @Override
     public int solve(String expression, String argumentValue) throws ParsingException {
-        int argument = Integer.parseInt(argumentValue);
-        Polynomial polynomial = parseToPolynomial(expression);
-        return PolynomialHelper.solve(polynomial,argument);
+        try {
+            int argument = Integer.parseInt(argumentValue);
+            Polynomial polynomial = parseToPolynomial(expression);
+            return PolynomialHelper.solve(polynomial, argument);
+        } catch (NumberFormatException e) {
+            throw new ParsingException("Can parse argument. You passed \"" + argumentValue + "\"");
+        }
+
     }
 
     /**
