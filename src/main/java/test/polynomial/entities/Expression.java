@@ -27,6 +27,13 @@ public class Expression {
     @JoinColumn(name = "polynomial_id")
     private Polynomial polynomial;
 
+    public Expression() {
+    }
+
+    public Expression(String originalExpression) {
+        this.originalExpression = originalExpression;
+    }
+
     public int getId() {
         return id;
     }
